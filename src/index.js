@@ -29,18 +29,32 @@ app.get('/:myLetters', (req, res) => {
         return;
     }
     myLetters = myLetters.toLowerCase();
-    // querry the database
-    con.query("SELECT DISTINCT(TRIM(getFirstWord(description))) FROM Entry WHERE isValid(getFirstWord(description), \"" + myLetters + "\");", function (err, result, fields) {
+
+    // start connection
+    con.connect(function(err) {
         if (err) throw err;
-        //res.json(result);
-        var words = [];
-        // for( var i = 0; i < result.length; i++){
-        //     words.push(result["getFirstWord(description)"]);
-        // }
-        Object.keys(result).forEach(function(key) {
-            words.push(result[key]["(TRIM(getFirstWord(description)))"]);
+        console.log("Connected!");
+
+        // querry the database
+        con.query("SELECT DISTINCT(TRIM(getFirstWord(description))) FROM Entry WHERE isValid(getFirstWord(description), \"" + myLetters + "\");", function (err, result, fields) {
+            if (err) throw err;
+            //res.json(result);
+            var words = [];
+            // for( var i = 0; i < result.length; i++){
+            //     words.push(result["getFirstWord(description)"]);
+            // }
+            Object.keys(result).forEach(function(key) {
+                words.push(result[key]["(TRIM(getFirstWord(description)))"]);
+            });
+            res.json({words: words});
         });
-        res.json({words: words});
+
+    });    
+    
+    // end connection
+    con.end(function(err) {
+        if (err) throw err;
+        console.log("Connection closed");
     });
 });
 
